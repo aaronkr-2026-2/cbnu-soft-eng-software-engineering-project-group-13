@@ -10,6 +10,7 @@ Every time you update your project, please make a note of what you did in the `A
 
 ```markdown
 ## [Milestone name] — [Date]
+
 **Tool(s) used:**
 **What I asked for:**
 **What I kept as-is:**
