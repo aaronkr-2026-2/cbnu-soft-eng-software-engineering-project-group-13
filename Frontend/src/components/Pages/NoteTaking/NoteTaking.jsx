@@ -11,11 +11,23 @@ const NoteTaking = () => {
         try {
             const savedNotes = localStorage.getItem('pomodoro_note_taker_notes');
             if (savedNotes) {
-                return JSON.parse(savedNotes);
+                const parsed = JSON.parse(savedNotes);
+                if (Array.isArray(parsed)) return parsed; // Ensures parsed value is an array
             }
         } catch (e) {
             console.error("Failed to load notes from localStorage", e);
         }
+
+        // Default initial mock notes array
+        return [
+            {
+                id: '1',
+                title: 'Tech Stack - ReactJs',
+                content: 'Idea - pomodoro clock with a planner',
+                pinned: true,
+                createdAt: new Date().toISOString()
+            },
+        ];
     });
 
     // State for new note input box expansion
