@@ -2,6 +2,8 @@ import {
     Trash2,
     Pin,
     Plus,
+    Image as ImageIcon,
+    X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -12,30 +14,32 @@ const NoteTaking = () => {
             const savedNotes = localStorage.getItem('pomodoro_note_taker_notes');
             if (savedNotes) {
                 const parsed = JSON.parse(savedNotes);
-                if (Array.isArray(parsed)) return parsed; // Ensures parsed value is an array
+                if (Array.isArray(parsed)) return parsed;
             }
         } catch (e) {
             console.error("Failed to load notes from localStorage", e);
         }
 
-        // Default initial mock notes array
         return [
             {
                 id: '1',
                 title: 'Tech Stack - ReactJs',
                 content: 'Idea - pomodoro clock with a planner',
+                image: '',
                 pinned: true,
                 createdAt: new Date().toISOString()
             },
         ];
     });
 
-    // State for new note input box expansion
+    // State for new note input box expansion & data
     const [isExpanded, setIsExpanded] = useState(false);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [image, setImage] = useState('');
 
     const inputRef = useRef(null);
+    const fileInputRef = useRef(null);
 
     // Save notes to LocalStorage whenever notes state changes
     useEffect(() => {
@@ -46,31 +50,52 @@ const NoteTaking = () => {
         }
     }, [notes]);
 
+    // Convert uploaded image to Base64
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleAddNote = () => {
-        if (!title.trim() && !content.trim()) {
+        if (!title.trim() && !content.trim() && !image) {
             setIsExpanded(false);
             return;
         }
 
         const newNote = {
-            id: Date.now().toString(),
+            id: new Date().getTime().toString(),
             title: title.trim(),
             content: content.trim(),
+            image: image,
             pinned: false,
             createdAt: new Date().toISOString()
         };
 
         setNotes([newNote, ...notes]);
+        resetForm();
+    };
+
+    const resetForm = () => {
         setTitle('');
         setContent('');
+        setImage('');
         setIsExpanded(false);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     // Click outside listener to auto-close the create note form
     useEffect(() => {
         function handleClickOutside(event) {
             if (inputRef.current && !inputRef.current.contains(event.target)) {
-                if (title.trim() || content.trim()) {
+                if (title.trim() || content.trim() || image) {
                     handleAddNote();
                 } else {
                     setIsExpanded(false);
@@ -80,8 +105,7 @@ const NoteTaking = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [title, content]);
-
+    }, [title, content, image]);
 
     const handleDeleteNote = (id, e) => {
         e.stopPropagation();
@@ -100,16 +124,30 @@ const NoteTaking = () => {
 
     return (
         <div className="min-h-screen bg-[#1c1d22] text-gray-200 font-sans flex flex-col selection:bg-gray-700 selection:text-white">
-            {/* Main Content Area */}
             <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 flex flex-col items-center">
 
-                {/* Google Keep Input Bar */}
+                {/* Note Input Box */}
                 <div
                     ref={inputRef}
                     className="w-full max-w-xl bg-[#282a30] rounded-xl border border-gray-700/60 shadow-lg overflow-hidden transition-all duration-200 mb-10"
                 >
                     {isExpanded ? (
                         <div className="p-4 flex flex-col space-y-3">
+                            {/* Image Preview inside input area */}
+                            {image && (
+                                <div className="relative group max-h-60 overflow-hidden rounded-lg">
+                                    <img src={image} alt="Preview" className="w-full object-cover rounded-lg" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setImage('')}
+                                        className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 text-white rounded-full transition"
+                                        title="Remove image"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                            )}
+
                             <input
                                 type="text"
                                 placeholder="Title"
@@ -125,20 +163,30 @@ const NoteTaking = () => {
                                 rows={3}
                                 className="bg-transparent text-gray-200 placeholder-gray-400 text-sm outline-none resize-none w-full leading-relaxed"
                             />
+
                             <div className="flex items-center justify-between pt-2 border-t border-gray-700/40">
                                 <div className="flex items-center space-x-2 text-gray-400">
-                                    {/* <button type="button" title="Checklist" className="p-1.5 hover:bg-gray-700/50 rounded-full transition"><CheckSquare size={18} /></button>
-                                    <button type="button" title="Draw" className="p-1.5 hover:bg-gray-700/50 rounded-full transition"><Edit3 size={18} /></button>
-                                    <button type="button" title="Image" className="p-1.5 hover:bg-gray-700/50 rounded-full transition"><ImageIcon size={18} /></button> */}
+                                    {/* Hidden File Input */}
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleImageUpload}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+                                    <button
+                                        type="button"
+                                        title="Add image"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="p-1.5 hover:bg-gray-700/50 hover:text-gray-200 rounded-full transition"
+                                    >
+                                        <ImageIcon size={18} />
+                                    </button>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            setTitle('');
-                                            setContent('');
-                                            setIsExpanded(false);
-                                        }}
+                                        onClick={resetForm}
                                         className="px-4 py-1.5 text-xs font-semibold text-gray-300 hover:bg-gray-700/50 rounded-lg transition"
                                     >
                                         Cancel
@@ -217,7 +265,7 @@ const NoteTaking = () => {
             </main>
         </div>
     );
-}
+};
 
 function NoteCard({ note, onDelete, onTogglePin }) {
     const [isHovered, setIsHovered] = useState(false);
@@ -226,9 +274,20 @@ function NoteCard({ note, onDelete, onTogglePin }) {
         <div
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="group relative bg-[#282a30] border border-gray-700/50 hover:border-gray-500/80 rounded-xl p-4 transition-all duration-200 flex flex-col justify-between hover:shadow-xl break-inside-avoid"
+            className="group relative bg-[#282a30] border border-gray-700/50 hover:border-gray-500/80 rounded-xl p-4 transition-all duration-200 flex flex-col justify-between hover:shadow-xl break-inside-avoid overflow-hidden"
         >
             <div>
+                {/* Note Image */}
+                {note.image && (
+                    <div className="mb-3 -mx-4 -mt-4 overflow-hidden max-h-56">
+                        <img
+                            src={note.image}
+                            alt={note.title || 'Note image'}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                )}
+
                 {/* Card Header (Title & Pin Button) */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                     {note.title && (
@@ -249,12 +308,14 @@ function NoteCard({ note, onDelete, onTogglePin }) {
                 </div>
 
                 {/* Card Body Content */}
-                <p className="text-sm text-gray-300 whitespace-pre-line leading-relaxed wrap-break-word">
-                    {note.content}
-                </p>
+                {note.content && (
+                    <p className="text-sm text-gray-300 whitespace-pre-line leading-relaxed wrap-break-word">
+                        {note.content}
+                    </p>
+                )}
             </div>
 
-            {/* Card Footer Actions (Trash Icon visible on hover) */}
+            {/* Card Footer Actions */}
             <div className={`flex items-center justify-end mt-4 pt-2 border-t border-gray-700/30 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
                 <button
                     onClick={(e) => onDelete(note.id, e)}
