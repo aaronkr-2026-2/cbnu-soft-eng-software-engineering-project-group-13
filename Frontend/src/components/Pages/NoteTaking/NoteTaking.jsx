@@ -221,7 +221,8 @@ const NoteTaking = () => {
                             <h2 className="text-xs font-semibold text-gray-400 tracking-wider uppercase mb-3 px-1">
                                 PINNED
                             </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {/* CSS Masonry Columns */}
+                            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
                                 {pinnedNotes.map((note) => (
                                     <NoteCard
                                         key={note.id}
@@ -242,7 +243,8 @@ const NoteTaking = () => {
                                     OTHERS
                                 </h2>
                             )}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {/* CSS Masonry Columns */}
+                            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
                                 {otherNotes.map((note) => (
                                     <NoteCard
                                         key={note.id}
@@ -274,7 +276,7 @@ function NoteCard({ note, onDelete, onTogglePin }) {
         <div
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="group relative bg-[#282a30] border border-gray-700/50 hover:border-gray-500/80 rounded-xl p-4 transition-all duration-200 flex flex-col justify-between hover:shadow-xl break-inside-avoid overflow-hidden"
+            className="group relative bg-[#282a30] border border-gray-700/50 hover:border-gray-500/80 rounded-xl p-4 transition-all duration-200 flex flex-col justify-between hover:shadow-xl break-inside-avoid mb-4 overflow-hidden"
         >
             <div>
                 {/* Note Image */}
