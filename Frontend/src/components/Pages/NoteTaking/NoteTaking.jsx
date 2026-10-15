@@ -38,8 +38,13 @@ const NoteTaking = () => {
     const [content, setContent] = useState('');
     const [image, setImage] = useState('');
 
+    // State for active popup modal editing
+    const [activeNote, setActiveNote] = useState(null);
+
     const inputRef = useRef(null);
     const fileInputRef = useRef(null);
+    const modalFileInputRef = useRef(null);
+    const modalTextareaRef = useRef(null);
 
     // Save notes to LocalStorage whenever notes state changes
     useEffect(() => {
@@ -50,7 +55,15 @@ const NoteTaking = () => {
         }
     }, [notes]);
 
-    // Convert uploaded image to Base64
+    // Auto-resize modal textarea based on content height
+    useEffect(() => {
+        if (modalTextareaRef.current && activeNote) {
+            modalTextareaRef.current.style.height = 'auto';
+            modalTextareaRef.current.style.height = `${modalTextareaRef.current.scrollHeight}px`;
+        }
+    }, [activeNote?.content, activeNote]);
+
+    // Convert uploaded image to Base64 for new note creation
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -58,6 +71,20 @@ const NoteTaking = () => {
         const reader = new FileReader();
         reader.onloadend = () => {
             setImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // Convert uploaded image to Base64 for active modal note
+    const handleModalImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file || !activeNote) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const updated = { ...activeNote, image: reader.result };
+            setActiveNote(updated);
+            updateNoteInList(updated);
         };
         reader.readAsDataURL(file);
     };
@@ -108,15 +135,25 @@ const NoteTaking = () => {
     }, [title, content, image]);
 
     const handleDeleteNote = (id, e) => {
-        e.stopPropagation();
-        setNotes(notes.filter(note => note.id !== id));
+        if (e) e.stopPropagation();
+        setNotes(prev => prev.filter(note => note.id !== id));
+        if (activeNote?.id === id) {
+            setActiveNote(null);
+        }
     };
 
     const handleTogglePin = (id, e) => {
-        e.stopPropagation();
-        setNotes(notes.map(note =>
+        if (e) e.stopPropagation();
+        setNotes(prev => prev.map(note =>
             note.id === id ? { ...note, pinned: !note.pinned } : note
         ));
+        if (activeNote?.id === id) {
+            setActiveNote(prev => prev ? { ...prev, pinned: !prev.pinned } : null);
+        }
+    };
+
+    const updateNoteInList = (updatedNote) => {
+        setNotes(prev => prev.map(note => note.id === updatedNote.id ? updatedNote : note));
     };
 
     const pinnedNotes = notes.filter(n => n.pinned);
@@ -166,7 +203,6 @@ const NoteTaking = () => {
 
                             <div className="flex items-center justify-between pt-2 border-t border-gray-700/40">
                                 <div className="flex items-center space-x-2 text-gray-400">
-                                    {/* Hidden File Input */}
                                     <input
                                         type="file"
                                         ref={fileInputRef}
@@ -221,7 +257,7 @@ const NoteTaking = () => {
                             <h2 className="text-xs font-semibold text-gray-400 tracking-wider uppercase mb-3 px-1">
                                 PINNED
                             </h2>
-                            {/* CSS Masonry Columns */}
+                            {/* Google Keep Masonry Grid */}
                             <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
                                 {pinnedNotes.map((note) => (
                                     <NoteCard
@@ -229,6 +265,7 @@ const NoteTaking = () => {
                                         note={note}
                                         onDelete={handleDeleteNote}
                                         onTogglePin={handleTogglePin}
+                                        onClick={() => setActiveNote(note)}
                                     />
                                 ))}
                             </div>
@@ -243,7 +280,7 @@ const NoteTaking = () => {
                                     OTHERS
                                 </h2>
                             )}
-                            {/* CSS Masonry Columns */}
+                            {/* Google Keep Masonry Grid */}
                             <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
                                 {otherNotes.map((note) => (
                                     <NoteCard
@@ -251,6 +288,7 @@ const NoteTaking = () => {
                                         note={note}
                                         onDelete={handleDeleteNote}
                                         onTogglePin={handleTogglePin}
+                                        onClick={() => setActiveNote(note)}
                                     />
                                 ))}
                             </div>
@@ -265,23 +303,138 @@ const NoteTaking = () => {
                     )}
                 </div>
             </main>
+
+            {/* Google Keep Responsive Dynamic Modal */}
+            {activeNote && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => setActiveNote(null)}
+                >
+                    <div
+                        className="bg-[#282a30] border border-gray-700/80 rounded-2xl max-w-2xl w-full p-5 shadow-2xl relative flex flex-col max-h-[88vh] overflow-hidden transition-all duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Scrollable Content Container */}
+                        <div className="overflow-y-auto pr-1 flex-1 space-y-3 custom-scrollbar">
+                            {/* Modal Image */}
+                            {activeNote.image && (
+                                <div className="relative group max-h-96 overflow-hidden rounded-lg mb-2">
+                                    <img
+                                        src={activeNote.image}
+                                        alt="Note Attachment"
+                                        className="w-full object-cover"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            const updated = { ...activeNote, image: '' };
+                                            setActiveNote(updated);
+                                            updateNoteInList(updated);
+                                        }}
+                                        className="absolute top-3 right-3 p-1.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition"
+                                        title="Remove Image"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Title & Pin Button */}
+                            <div className="flex items-start justify-between gap-3 pt-1">
+                                <input
+                                    type="text"
+                                    placeholder="Title"
+                                    value={activeNote.title}
+                                    onChange={(e) => {
+                                        const updated = { ...activeNote, title: e.target.value };
+                                        setActiveNote(updated);
+                                        updateNoteInList(updated);
+                                    }}
+                                    className="bg-transparent text-white font-semibold text-xl outline-none w-full"
+                                />
+                                <button
+                                    onClick={(e) => handleTogglePin(activeNote.id, e)}
+                                    className={`p-2 rounded-full transition ${activeNote.pinned
+                                        ? 'text-yellow-400 bg-yellow-400/10'
+                                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/40'
+                                        }`}
+                                    title={activeNote.pinned ? "Unpin note" : "Pin note"}
+                                >
+                                    <Pin size={18} className={activeNote.pinned ? "fill-yellow-400" : ""} />
+                                </button>
+                            </div>
+
+                            {/* Auto-Resizing Textarea */}
+                            <textarea
+                                ref={modalTextareaRef}
+                                placeholder="Note..."
+                                value={activeNote.content}
+                                onChange={(e) => {
+                                    const updated = { ...activeNote, content: e.target.value };
+                                    setActiveNote(updated);
+                                    updateNoteInList(updated);
+                                }}
+                                rows={1}
+                                className="bg-transparent text-gray-200 text-sm outline-none resize-none w-full leading-relaxed overflow-hidden min-h-15"
+                            />
+                        </div>
+
+                        {/* Modal Action Bar */}
+                        <div className="flex items-center justify-between pt-3 mt-2 border-t border-gray-700/60 bg-[#282a30]">
+                            <div className="flex items-center space-x-2 text-gray-400">
+                                <input
+                                    type="file"
+                                    ref={modalFileInputRef}
+                                    onChange={handleModalImageUpload}
+                                    accept="image/*"
+                                    className="hidden"
+                                />
+                                <button
+                                    type="button"
+                                    title="Add image"
+                                    onClick={() => modalFileInputRef.current?.click()}
+                                    className="p-2 hover:bg-gray-700/50 hover:text-gray-200 rounded-full transition"
+                                >
+                                    <ImageIcon size={18} />
+                                </button>
+                                <button
+                                    type="button"
+                                    title="Delete note"
+                                    onClick={(e) => handleDeleteNote(activeNote.id, e)}
+                                    className="p-2 hover:bg-red-400/10 hover:text-red-400 rounded-full transition"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setActiveNote(null)}
+                                className="px-5 py-1.5 text-xs font-semibold bg-gray-700/80 hover:bg-gray-600 text-white rounded-lg transition"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-function NoteCard({ note, onDelete, onTogglePin }) {
+function NoteCard({ note, onDelete, onTogglePin, onClick }) {
     const [isHovered, setIsHovered] = useState(false);
 
     return (
         <div
+            onClick={onClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="group relative bg-[#282a30] border border-gray-700/50 hover:border-gray-500/80 rounded-xl p-4 transition-all duration-200 flex flex-col justify-between hover:shadow-xl break-inside-avoid mb-4 overflow-hidden"
+            className="group relative bg-[#282a30] border border-gray-700/50 hover:border-gray-500/80 rounded-xl p-4 transition-all duration-200 flex flex-col justify-between hover:shadow-xl break-inside-avoid overflow-hidden cursor-pointer"
         >
             <div>
-                {/* Note Image */}
+                {/* Note Image Preview */}
                 {note.image && (
-                    <div className="mb-3 -mx-4 -mt-4 overflow-hidden max-h-56">
+                    <div className="mb-3 -mx-4 -mt-4 overflow-hidden max-h-48">
                         <img
                             src={note.image}
                             alt={note.title || 'Note image'}
@@ -293,7 +446,7 @@ function NoteCard({ note, onDelete, onTogglePin }) {
                 {/* Card Header (Title & Pin Button) */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                     {note.title && (
-                        <h3 className="font-semibold text-gray-100 text-base leading-tight wrap-break-word">
+                        <h3 className="font-semibold text-gray-100 text-base leading-tight wrap-break-word line-clamp-2">
                             {note.title}
                         </h3>
                     )}
@@ -309,9 +462,9 @@ function NoteCard({ note, onDelete, onTogglePin }) {
                     </button>
                 </div>
 
-                {/* Card Body Content */}
+                {/* Truncated Card Body Content */}
                 {note.content && (
-                    <p className="text-sm text-gray-300 whitespace-pre-line leading-relaxed wrap-break-word">
+                    <p className="text-sm text-gray-300 whitespace-pre-line leading-relaxed wrap-break-word line-clamp-6">
                         {note.content}
                     </p>
                 )}
