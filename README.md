@@ -1,6 +1,3 @@
-Here is the updated `README.md` content with the architecture focused purely on the current frontend structure (removing the backend parts):
-
-````markdown
 # software-project
 
 🚀 **Live Application:** [https://pomodoro-notetaker.netlify.app/](https://pomodoro-notetaker.netlify.app/)
@@ -21,26 +18,40 @@ Creating a website where people can access the features of three separate softwa
 
 ---
 
-## `Project Architecture`
+## `Project Structure`
 
-Here is the high-level frontend component architecture based on the current project structure:
-
-```mermaid
-graph TD
-    A[Frontend Client / Vite & React] --> B[App Layout (App.jsx)]
-    B --> C[Navbar (Shared UI)]
-    B --> D[Routes (React Router)]
-
-    D --> E[Note Taking Page]
-    D --> F[Pomodoro Timer Page]
-    D --> G[Schedule Page]
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style D fill:#dfd,stroke:#333,stroke-width:2px
-```
-````
-
-```
-
+```text
+cbnu-soft-eng-software-engineering/
+├── Frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   └── Navbar/
+│   │   ├── Pages/
+│   │   │   ├── NoteTaking/
+│   │   │   │   └── NoteTaking.jsx
+│   │   │   ├── Pomodoro/
+│   │   │   │   └── Pomodoro.jsx
+│   │   │   └── Schedule/
+│   │   │       └── Schedule.jsx
+│   │   ├── Routes/
+│   │   ├── layout/
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   └── vite.config.js
+├── resources/
+├── .classroom50.yaml
+├── AI_LOG.md
+├── package-lock.json
+├── package.json
+├── personas.md
+├── README.md
+└── sprint.md
 ```
