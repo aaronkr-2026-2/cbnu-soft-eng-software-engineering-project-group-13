@@ -1,13 +1,14 @@
 import { RouterProvider } from "react-router-dom"
-import router from "./components/Routes/Routes"
+import router from "./Routes/Routes"
+import { PomodoroProvider } from './context/PomodoroContext';
 
 function App() {
 
   return (
     <>
-      <div>
+      <PomodoroProvider>
         <RouterProvider router={router}></RouterProvider>
-      </div>
+      </PomodoroProvider>
     </>
   )
 }
