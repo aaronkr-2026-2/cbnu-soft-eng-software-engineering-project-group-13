@@ -63,7 +63,7 @@ const Pomodoro = () => {
                 <div className="card-body items-center text-center p-6 sm:p-8">
                     {/* Header */}
                     <div className="w-full flex justify-between items-center mb-4">
-                        <h1 className="text-2xl font-bold tracking-wide">Pomodoro</h1>
+                        <h1 className="text-2xl font-bold tracking-wide">Pomodoro Timer</h1>
                         <button
                             onClick={() => setIsSettingsOpen(true)}
                             className="btn btn-ghost btn-circle btn-sm"
@@ -153,8 +153,8 @@ const Pomodoro = () => {
                                         key={key}
                                         onClick={() => setAmbientSound(key)}
                                         className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all ${isActive
-                                                ? 'bg-primary text-primary-content border-primary shadow-md'
-                                                : 'bg-base-200 border-base-300 hover:bg-base-300 text-base-content/80'
+                                            ? 'bg-primary text-primary-content border-primary shadow-md'
+                                            : 'bg-base-200 border-base-300 hover:bg-base-300 text-base-content/80'
                                             }`}
                                         title={label}
                                     >
