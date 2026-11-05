@@ -1,8 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import Main from "../layout/Main";
-import Pomodoro from "../components/Pages/Pomodoro/pomodoro";
 import Schedule from "../components/Pages/Schedule/Schedule";
 import NoteTaking from "../components/Pages/NoteTaking/NoteTaking";
+import Pomodoro from "../components/Pages/Pomodoro/Pomodoro";
 
 
 const router = createBrowserRouter([
