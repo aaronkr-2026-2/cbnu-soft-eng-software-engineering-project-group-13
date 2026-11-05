@@ -1,26 +1,50 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 
-const PomodoroContext = createContext();
 
-const DEFAULT_SETTINGS = {
-    work: 25,
-    shortBreak: 5,
-    longBreak: 15,
+import rainSound from '../assets/audio/rain-sounds.mp3';
+import cafeSound from '../assets/audio/Cafe.mp3';
+import forestSound from '../assets/audio/forest.mp3';
+import wavesSound from '../assets/audio/ocean waves.mp3';
+import whiteNoiseSound from '../assets/audio/white noise.mp3';
+
+const DEFAULT_TIMES = {
+    work: 25 * 60,
+    shortBreak: 5 * 60,
+    longBreak: 15 * 60,
 };
 
+const SOUND_OPTIONS = {
+    rain: rainSound,
+    cafe: cafeSound,
+    forest: forestSound,
+    waves: wavesSound,
+    whitenoise: whiteNoiseSound,
+};
+
+const PomodoroContext = createContext();
+
 export const PomodoroProvider = ({ children }) => {
-    const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+    const [settings, setSettings] = useState({
+        work: 25,
+        shortBreak: 5,
+        longBreak: 15,
+    });
+
     const [mode, setMode] = useState('work');
-    const [timeLeft, setTimeLeft] = useState(DEFAULT_SETTINGS.work * 60);
+    const [timeLeft, setTimeLeft] = useState(DEFAULT_TIMES.work);
     const [isRunning, setIsRunning] = useState(false);
     const [sessionsCompleted, setSessionsCompleted] = useState(0);
+
+    // Ambient Sound States
+    const [activeSound, setActiveSound] = useState(null);
+    const audioRef = useRef(null);
 
     const timerRef = useRef(null);
 
     const switchMode = useCallback((newMode) => {
         setIsRunning(false);
         setMode(newMode);
-        setTimeLeft((settings[newMode] || 25) * 60);
+        setTimeLeft(settings[newMode] * 60);
     }, [settings]);
 
     const handleTimerEnd = useCallback(() => {
@@ -30,7 +54,7 @@ export const PomodoroProvider = ({ children }) => {
             const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
             audio.play();
         } catch (e) {
-            console.log('Audio error:', e);
+            console.log('Audio playback error:', e);
         }
 
         if (mode === 'work') {
@@ -44,12 +68,12 @@ export const PomodoroProvider = ({ children }) => {
     useEffect(() => {
         if (isRunning) {
             timerRef.current = setInterval(() => {
-                setTimeLeft((prev) => {
-                    if (prev <= 1) {
+                setTimeLeft((prevTime) => {
+                    if (prevTime <= 1) {
                         handleTimerEnd();
                         return 0;
                     }
-                    return prev - 1;
+                    return prevTime - 1;
                 });
             }, 1000);
         } else {
@@ -58,6 +82,30 @@ export const PomodoroProvider = ({ children }) => {
 
         return () => clearInterval(timerRef.current);
     }, [isRunning, handleTimerEnd]);
+
+    // Updated Ambient Sound Logic: Plays ONLY when a sound is selected AND the timer is running
+    useEffect(() => {
+        if (activeSound && isRunning) {
+            if (!audioRef.current) {
+                audioRef.current = new Audio(SOUND_OPTIONS[activeSound]);
+                audioRef.current.loop = true;
+            } else {
+                audioRef.current.src = SOUND_OPTIONS[activeSound];
+            }
+            audioRef.current.play().catch((err) => console.log('Audio play error:', err));
+        } else {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        }
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+        };
+    }, [activeSound, isRunning]);
 
     const toggleTimer = () => setIsRunning((prev) => !prev);
 
@@ -72,21 +120,29 @@ export const PomodoroProvider = ({ children }) => {
         setTimeLeft(newSettings[mode] * 60);
     };
 
+    const setAmbientSound = (soundKey) => {
+        if (activeSound === soundKey) {
+            setActiveSound(null); // Turn off if clicked again
+        } else {
+            setActiveSound(soundKey);
+        }
+    };
+
     return (
-        <PomodoroContext.Provider
-            value={{
-                settings,
-                mode,
-                timeLeft,
-                isRunning,
-                sessionsCompleted,
-                switchMode,
-                toggleTimer,
-                resetTimer,
-                updateSettings,
-                handleTimerEnd,
-            }}
-        >
+        <PomodoroContext.Provider value={{
+            settings,
+            mode,
+            timeLeft,
+            isRunning,
+            sessionsCompleted,
+            activeSound,
+            switchMode,
+            toggleTimer,
+            resetTimer,
+            updateSettings,
+            handleTimerEnd,
+            setAmbientSound
+        }}>
             {children}
         </PomodoroContext.Provider>
     );

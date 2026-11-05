@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { usePomodoro } from '../../../context/PomodoroContext';
+import { CloudRain, Coffee, Trees, Waves, Wind, VolumeX } from 'lucide-react';
 
 const Pomodoro = () => {
     const {
@@ -8,11 +9,13 @@ const Pomodoro = () => {
         timeLeft,
         isRunning,
         sessionsCompleted,
+        activeSound,
         switchMode,
         toggleTimer,
         resetTimer,
         updateSettings,
         handleTimerEnd,
+        setAmbientSound,
     } = usePomodoro();
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -45,6 +48,14 @@ const Pomodoro = () => {
             default: return { text: 'Focus Time', color: 'badge-primary' };
         }
     };
+
+    const soundButtons = [
+        { key: 'rain', label: 'Rain', icon: CloudRain },
+        { key: 'cafe', label: 'Cafe', icon: Coffee },
+        { key: 'forest', label: 'Forest', icon: Trees },
+        { key: 'waves', label: 'Waves', icon: Waves },
+        { key: 'whitenoise', label: 'White Noise', icon: Wind },
+    ];
 
     return (
         <div className="min-h-screen bg-base-200 flex flex-col items-center justify-center p-4">
@@ -103,7 +114,7 @@ const Pomodoro = () => {
                     </div>
 
                     {/* Controls */}
-                    <div className="flex items-center gap-4 mt-6">
+                    <div className="flex items-center gap-4 mt-4">
                         <button onClick={resetTimer} className="btn btn-circle btn-outline border-base-300 hover:bg-base-200" title="Reset">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -121,9 +132,43 @@ const Pomodoro = () => {
                         </button>
                     </div>
 
+                    {/* Ambient Sound Selector */}
+                    <div className="w-full mt-6 pt-4 border-t border-base-300">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold text-base-content/70 uppercase tracking-wider">Ambient Sounds</span>
+                            {activeSound && (
+                                <button
+                                    onClick={() => setAmbientSound(activeSound)}
+                                    className="text-xs text-error flex items-center gap-1 hover:underline"
+                                >
+                                    <VolumeX size={14} /> Stop Audio
+                                </button>
+                            )}
+                        </div>
+                        <div className="grid grid-cols-5 gap-2">
+                            {soundButtons.map(({ key, label, icon: Icon }) => {
+                                const isActive = activeSound === key;
+                                return (
+                                    <button
+                                        key={key}
+                                        onClick={() => setAmbientSound(key)}
+                                        className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all ${isActive
+                                                ? 'bg-primary text-primary-content border-primary shadow-md'
+                                                : 'bg-base-200 border-base-300 hover:bg-base-300 text-base-content/80'
+                                            }`}
+                                        title={label}
+                                    >
+                                        <Icon size={18} />
+                                        <span className="text-[10px] mt-1 font-medium truncate w-full">{label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     {/* Stats */}
-                    <div className="stats shadow bg-base-200 mt-8 w-full border border-base-300">
-                        <div className="stat text-center py-3">
+                    <div className="stats shadow bg-base-200 mt-6 w-full border border-base-300">
+                        <div className="stat text-center py-2">
                             <div className="stat-title text-xs">Completed Sessions</div>
                             <div className="stat-value text-xl text-primary">{sessionsCompleted}</div>
                         </div>
