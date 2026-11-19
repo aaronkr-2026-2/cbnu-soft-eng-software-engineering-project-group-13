@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 
-
 import rainSound from '../assets/audio/rain-sounds.mp3';
 import cafeSound from '../assets/audio/Cafe.mp3';
 import forestSound from '../assets/audio/forest.mp3';
@@ -41,11 +40,14 @@ export const PomodoroProvider = ({ children }) => {
 
     const timerRef = useRef(null);
 
-    const switchMode = useCallback((newMode) => {
-        setIsRunning(false);
-        setMode(newMode);
-        setTimeLeft(settings[newMode] * 60);
-    }, [settings]);
+    const switchMode = useCallback(
+        (newMode) => {
+            setIsRunning(false);
+            setMode(newMode);
+            setTimeLeft(settings[newMode] * 60);
+        },
+        [settings]
+    );
 
     const handleTimerEnd = useCallback(() => {
         setIsRunning(false);
@@ -129,20 +131,22 @@ export const PomodoroProvider = ({ children }) => {
     };
 
     return (
-        <PomodoroContext.Provider value={{
-            settings,
-            mode,
-            timeLeft,
-            isRunning,
-            sessionsCompleted,
-            activeSound,
-            switchMode,
-            toggleTimer,
-            resetTimer,
-            updateSettings,
-            handleTimerEnd,
-            setAmbientSound
-        }}>
+        <PomodoroContext.Provider
+            value={{
+                settings,
+                mode,
+                timeLeft,
+                isRunning,
+                sessionsCompleted,
+                activeSound,
+                switchMode,
+                toggleTimer,
+                resetTimer,
+                updateSettings,
+                handleTimerEnd,
+                setAmbientSound,
+            }}
+        >
             {children}
         </PomodoroContext.Provider>
     );
