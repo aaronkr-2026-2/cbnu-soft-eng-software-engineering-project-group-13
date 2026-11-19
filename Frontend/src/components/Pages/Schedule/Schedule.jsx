@@ -6,7 +6,7 @@ import {
     Trash2,
     CheckCircle2,
     Circle,
-    Calendar as CalendarIcon
+    Calendar as CalendarIcon,
 } from 'lucide-react';
 
 const Schedule = () => {
@@ -32,8 +32,18 @@ const Schedule = () => {
     const daysInPrevMonth = new Date(year, month, 0).getDate();
 
     const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
     ];
 
     const formatDateKey = (date) => {
@@ -62,12 +72,12 @@ const Schedule = () => {
             id: Date.now().toString(),
             text: newTaskText.trim(),
             completed: false,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
         };
 
         setTasks((prev) => ({
             ...prev,
-            [selectedKey]: [...(prev[selectedKey] || []), newTask]
+            [selectedKey]: [...(prev[selectedKey] || []), newTask],
         }));
 
         setNewTaskText('');
@@ -78,14 +88,14 @@ const Schedule = () => {
             ...prev,
             [selectedKey]: (prev[selectedKey] || []).map((t) =>
                 t.id === taskId ? { ...t, completed: !t.completed } : t
-            )
+            ),
         }));
     };
 
     const deleteTask = (taskId) => {
         setTasks((prev) => ({
             ...prev,
-            [selectedKey]: (prev[selectedKey] || []).filter((t) => t.id !== taskId)
+            [selectedKey]: (prev[selectedKey] || []).filter((t) => t.id !== taskId),
         }));
     };
 
@@ -97,7 +107,7 @@ const Schedule = () => {
         calendarDays.push({
             day: daysInPrevMonth - i,
             isCurrentMonth: false,
-            date: new Date(year, month - 1, daysInPrevMonth - i)
+            date: new Date(year, month - 1, daysInPrevMonth - i),
         });
     }
 
@@ -106,7 +116,7 @@ const Schedule = () => {
         calendarDays.push({
             day: d,
             isCurrentMonth: true,
-            date: new Date(year, month, d)
+            date: new Date(year, month, d),
         });
     }
 
@@ -116,7 +126,7 @@ const Schedule = () => {
         calendarDays.push({
             day: i,
             isCurrentMonth: false,
-            date: new Date(year, month + 1, i)
+            date: new Date(year, month + 1, i),
         });
     }
 
@@ -161,7 +171,6 @@ const Schedule = () => {
 
                 {/* Main Grid: Calendar + Task Sidebar */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
                     {/* Calendar View (Spans 2 columns on large screens) */}
                     <div className="lg:col-span-2 bg-[#232a35] border border-gray-700/50 rounded-2xl p-6 shadow-xl">
                         {/* Month Navigation */}
@@ -208,17 +217,20 @@ const Schedule = () => {
                                     <button
                                         key={idx}
                                         onClick={() => setSelectedDate(item.date)}
-                                        className={`min-h-17.5 p-2 rounded-xl flex flex-col justify-between text-left transition-all relative border ${!item.isCurrentMonth
-                                            ? 'text-gray-600 border-transparent hover:bg-gray-800/30'
-                                            : active
-                                                ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-md'
-                                                : today
+                                        className={`min-h-17.5 p-2 rounded-xl flex flex-col justify-between text-left transition-all relative border ${
+                                            !item.isCurrentMonth
+                                                ? 'text-gray-600 border-transparent hover:bg-gray-800/30'
+                                                : active
+                                                  ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-md'
+                                                  : today
                                                     ? 'bg-emerald-900/20 border-emerald-500/50 text-emerald-300'
                                                     : 'bg-[#1b2028]/60 border-gray-700/40 text-gray-200 hover:bg-gray-700/40'
-                                            }`}
+                                        }`}
                                     >
                                         <div className="flex items-center justify-between w-full">
-                                            <span className={`text-sm font-semibold ${today ? 'bg-emerald-500 text-black w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs' : ''}`}>
+                                            <span
+                                                className={`text-sm font-semibold ${today ? 'bg-emerald-500 text-black w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs' : ''}`}
+                                            >
                                                 {item.day}
                                             </span>
                                         </div>
@@ -227,7 +239,8 @@ const Schedule = () => {
                                         {dayTasks.length > 0 && (
                                             <div className="flex items-center gap-1 mt-1 overflow-hidden">
                                                 <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-md font-medium truncate">
-                                                    {dayTasks.length} task{dayTasks.length > 1 ? 's' : ''}
+                                                    {dayTasks.length} task
+                                                    {dayTasks.length > 1 ? 's' : ''}
                                                 </span>
                                             </div>
                                         )}
@@ -250,7 +263,7 @@ const Schedule = () => {
                                         weekday: 'short',
                                         month: 'short',
                                         day: 'numeric',
-                                        year: 'numeric'
+                                        year: 'numeric',
                                     })}
                                 </h3>
                             </div>
@@ -283,10 +296,11 @@ const Schedule = () => {
                                     selectedTasks.map((task) => (
                                         <div
                                             key={task.id}
-                                            className={`flex items-center justify-between p-3 rounded-xl border transition ${task.completed
-                                                ? 'bg-[#1b2028]/40 border-gray-800 text-gray-500 line-through'
-                                                : 'bg-[#1b2028] border-gray-700/60 text-gray-200'
-                                                }`}
+                                            className={`flex items-center justify-between p-3 rounded-xl border transition ${
+                                                task.completed
+                                                    ? 'bg-[#1b2028]/40 border-gray-800 text-gray-500 line-through'
+                                                    : 'bg-[#1b2028] border-gray-700/60 text-gray-200'
+                                            }`}
                                         >
                                             <div
                                                 onClick={() => toggleTask(task.id)}
@@ -297,7 +311,9 @@ const Schedule = () => {
                                                 ) : (
                                                     <Circle className="w-5 h-5 text-gray-500 shrink-0" />
                                                 )}
-                                                <span className="text-sm truncate">{task.text}</span>
+                                                <span className="text-sm truncate">
+                                                    {task.text}
+                                                </span>
                                             </div>
                                             <button
                                                 onClick={() => deleteTask(task.id)}
@@ -315,11 +331,11 @@ const Schedule = () => {
                         {/* Footer Summary */}
                         <div className="pt-4 border-t border-gray-700/60 text-xs text-gray-400 flex justify-between items-center mt-4">
                             <span>
-                                {selectedTasks.filter((t) => t.completed).length} of {selectedTasks.length} completed
+                                {selectedTasks.filter((t) => t.completed).length} of{' '}
+                                {selectedTasks.length} completed
                             </span>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

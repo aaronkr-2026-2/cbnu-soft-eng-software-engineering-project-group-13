@@ -1,10 +1,4 @@
-import {
-    Trash2,
-    Pin,
-    Plus,
-    Image as ImageIcon,
-    X,
-} from 'lucide-react';
+import { Trash2, Pin, Plus, Image as ImageIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 const NoteTaking = () => {
@@ -17,7 +11,7 @@ const NoteTaking = () => {
                 if (Array.isArray(parsed)) return parsed;
             }
         } catch (e) {
-            console.error("Failed to load notes from localStorage", e);
+            console.error('Failed to load notes from localStorage', e);
         }
 
         return [
@@ -27,7 +21,7 @@ const NoteTaking = () => {
                 content: 'Idea - pomodoro clock with a planner',
                 image: '',
                 pinned: true,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
             },
         ];
     });
@@ -51,7 +45,7 @@ const NoteTaking = () => {
         try {
             localStorage.setItem('pomodoro_note_taker_notes', JSON.stringify(notes));
         } catch (e) {
-            console.error("Failed to save notes to localStorage", e);
+            console.error('Failed to save notes to localStorage', e);
         }
     }, [notes]);
 
@@ -101,7 +95,7 @@ const NoteTaking = () => {
             content: content.trim(),
             image: image,
             pinned: false,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
         };
 
         setNotes([newNote, ...notes]);
@@ -136,7 +130,7 @@ const NoteTaking = () => {
 
     const handleDeleteNote = (id, e) => {
         if (e) e.stopPropagation();
-        setNotes(prev => prev.filter(note => note.id !== id));
+        setNotes((prev) => prev.filter((note) => note.id !== id));
         if (activeNote?.id === id) {
             setActiveNote(null);
         }
@@ -144,25 +138,24 @@ const NoteTaking = () => {
 
     const handleTogglePin = (id, e) => {
         if (e) e.stopPropagation();
-        setNotes(prev => prev.map(note =>
-            note.id === id ? { ...note, pinned: !note.pinned } : note
-        ));
+        setNotes((prev) =>
+            prev.map((note) => (note.id === id ? { ...note, pinned: !note.pinned } : note))
+        );
         if (activeNote?.id === id) {
-            setActiveNote(prev => prev ? { ...prev, pinned: !prev.pinned } : null);
+            setActiveNote((prev) => (prev ? { ...prev, pinned: !prev.pinned } : null));
         }
     };
 
     const updateNoteInList = (updatedNote) => {
-        setNotes(prev => prev.map(note => note.id === updatedNote.id ? updatedNote : note));
+        setNotes((prev) => prev.map((note) => (note.id === updatedNote.id ? updatedNote : note)));
     };
 
-    const pinnedNotes = notes.filter(n => n.pinned);
-    const otherNotes = notes.filter(n => !n.pinned);
+    const pinnedNotes = notes.filter((n) => n.pinned);
+    const otherNotes = notes.filter((n) => !n.pinned);
 
     return (
         <div className="min-h-screen bg-[#1c1d22] text-gray-200 font-sans flex flex-col selection:bg-gray-700 selection:text-white">
             <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 flex flex-col items-center">
-
                 {/* Note Input Box */}
                 <div
                     ref={inputRef}
@@ -173,7 +166,11 @@ const NoteTaking = () => {
                             {/* Image Preview inside input area */}
                             {image && (
                                 <div className="relative group max-h-60 overflow-hidden rounded-lg">
-                                    <img src={image} alt="Preview" className="w-full object-cover rounded-lg" />
+                                    <img
+                                        src={image}
+                                        alt="Preview"
+                                        className="w-full object-cover rounded-lg"
+                                    />
                                     <button
                                         type="button"
                                         onClick={() => setImage('')}
@@ -244,7 +241,12 @@ const NoteTaking = () => {
                         >
                             <span className="text-sm font-medium">Take a note...</span>
                             <div className="flex items-center space-x-3 text-gray-400">
-                                <button type="button" className="p-1 hover:text-gray-200 transition"><Plus size={18} /></button>
+                                <button
+                                    type="button"
+                                    className="p-1 hover:text-gray-200 transition"
+                                >
+                                    <Plus size={18} />
+                                </button>
                             </div>
                         </div>
                     )}
@@ -353,13 +355,17 @@ const NoteTaking = () => {
                                 />
                                 <button
                                     onClick={(e) => handleTogglePin(activeNote.id, e)}
-                                    className={`p-2 rounded-full transition ${activeNote.pinned
-                                        ? 'text-yellow-400 bg-yellow-400/10'
-                                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/40'
-                                        }`}
-                                    title={activeNote.pinned ? "Unpin note" : "Pin note"}
+                                    className={`p-2 rounded-full transition ${
+                                        activeNote.pinned
+                                            ? 'text-yellow-400 bg-yellow-400/10'
+                                            : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/40'
+                                    }`}
+                                    title={activeNote.pinned ? 'Unpin note' : 'Pin note'}
                                 >
-                                    <Pin size={18} className={activeNote.pinned ? "fill-yellow-400" : ""} />
+                                    <Pin
+                                        size={18}
+                                        className={activeNote.pinned ? 'fill-yellow-400' : ''}
+                                    />
                                 </button>
                             </div>
 
@@ -452,13 +458,14 @@ function NoteCard({ note, onDelete, onTogglePin, onClick }) {
                     )}
                     <button
                         onClick={(e) => onTogglePin(note.id, e)}
-                        className={`p-1.5 rounded-full transition-opacity duration-200 ${note.pinned
-                            ? 'text-yellow-400 opacity-100'
-                            : 'text-gray-400 hover:text-gray-200 opacity-0 group-hover:opacity-100'
-                            }`}
-                        title={note.pinned ? "Unpin note" : "Pin note"}
+                        className={`p-1.5 rounded-full transition-opacity duration-200 ${
+                            note.pinned
+                                ? 'text-yellow-400 opacity-100'
+                                : 'text-gray-400 hover:text-gray-200 opacity-0 group-hover:opacity-100'
+                        }`}
+                        title={note.pinned ? 'Unpin note' : 'Pin note'}
                     >
-                        <Pin size={16} className={note.pinned ? "fill-yellow-400" : ""} />
+                        <Pin size={16} className={note.pinned ? 'fill-yellow-400' : ''} />
                     </button>
                 </div>
 
@@ -471,7 +478,9 @@ function NoteCard({ note, onDelete, onTogglePin, onClick }) {
             </div>
 
             {/* Card Footer Actions */}
-            <div className={`flex items-center justify-end mt-4 pt-2 border-t border-gray-700/30 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+            <div
+                className={`flex items-center justify-end mt-4 pt-2 border-t border-gray-700/30 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+            >
                 <button
                     onClick={(e) => onDelete(note.id, e)}
                     className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition"
